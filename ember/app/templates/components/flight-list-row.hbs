@@ -1,7 +1,7 @@
 {{#if showDate}}
   <td class="date">
     {{#if flight.scoreDate}}
-      {{format-date flight.scoreDate format="ddmmyyyy"}}
+      {{format-date flight.scoreDate format="ddmmyyyy" timeZone="UTC"}}
     {{/if}}
   </td>
 {{/if}}
@@ -57,12 +57,14 @@
 {{/if}}
 
 <td class="aircraft hidden-xs">
-  <span rel="tooltip" title="{{or flight.registration flight.igcFile.registration (t 'unknown')}}">
+  <span>
     {{#if flight.model}}
       {{flight.model.name}}
     {{else if flight.igcFile.model}}
       [{{flight.igcFile.model}}]
     {{/if}}
+
+    {{bs-tooltip title=(or flight.registration flight.igcFile.registration (t 'unknown'))}}
   </span>
 </td>
 

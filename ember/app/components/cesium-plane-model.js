@@ -1,11 +1,11 @@
 /* globals Cesium */
 
-import Ember from 'ember';
+import Component from '@ember/component';
 import ol from 'openlayers';
 
 import safeComputed from '../computed/safe-computed';
 
-export default Ember.Component.extend({
+export default Component.extend({
   tagName: '',
 
   scene: null,
@@ -22,7 +22,7 @@ export default Ember.Component.extend({
     this._super(...arguments);
 
     this.set('entity', Cesium.Model.fromGltf({
-      url: '../../images/Cesium_Air.gltf',
+      url: '../../images/Cesium_Air.glb',
       scale: 1,
       minimumPixelSize: 64,
       allowPicking: false,
@@ -30,15 +30,18 @@ export default Ember.Component.extend({
   },
 
   didReceiveAttrs() {
+    this._super(...arguments);
     this.get('entity').modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(
-      this.get('position'), this.get('heading') - Math.PI / 2, 0, 0);
+      this.get('position'), new Cesium.HeadingPitchRoll(this.get('heading') - Math.PI / 2, 0, 0));
   },
 
   didInsertElement() {
+    this._super(...arguments);
     this.get('scene').primitives.add(this.get('entity'));
   },
 
   willDestroyElement() {
+    this._super(...arguments);
     this.get('scene').primitives.remove(this.get('entity'));
   },
 });

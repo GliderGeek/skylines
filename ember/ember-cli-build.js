@@ -10,6 +10,7 @@ module.exports = function(defaults) {
       extensions: ['css', 'js'],
       exclude: ['cesium'],
     },
+
     minifyJS: {
       options: {
         exclude: ['cesium/Cesium.js'],
@@ -28,6 +29,12 @@ module.exports = function(defaults) {
     svgJar: {
       sourceDirs: ['public/svg'],
     },
+
+    'ember-bootstrap': {
+      'bootstrapVersion': 3,
+      'importBootstrapFont': true,
+      'importBootstrapCSS': false,
+    },
   });
 
   // Use `app.import` to add additional libraries to the generated
@@ -43,11 +50,11 @@ module.exports = function(defaults) {
   // please specify an object with the list of modules as keys
   // along with the exports of each module as its value.
 
-  app.import('vendor/openlayers/ol3cesium.js');
+  app.import('vendor/openlayers/olcesium.js');
   app.import('vendor/openlayers/ol.css');
 
   app.import('vendor/shims/openlayers.js');
-  app.import('vendor/shims/ol3-cesium.js');
+  app.import('vendor/shims/ol-cesium.js');
 
   app.import('bower_components/Flot/jquery.flot.js');
   app.import('bower_components/Flot/jquery.flot.time.js');
@@ -63,8 +70,8 @@ module.exports = function(defaults) {
   app.import('vendor/shims/remarkable.js');
 
   app.import({
-    development: 'bower_components/BigScreen/bigscreen.js',
-    production: 'bower_components/BigScreen/bigscreen.min.js',
+    development: 'node_modules/bigscreen/bigscreen.js',
+    production: 'node_modules/bigscreen/bigscreen.min.js',
   });
 
   app.import('vendor/bootstrap-datepicker/datepicker.js');

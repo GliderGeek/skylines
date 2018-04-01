@@ -11,28 +11,9 @@ module.exports = {
     'comma-dangle': ['error', 'always-multiline'],
     'generator-star-spacing': ['error', 'both'],
     'ember/local-modules': 'off',
-    'ember/order-in-components': ['error', {
-      order: [
-        'service',
-        'property',
-        ['single-line-function', 'multi-line-function'],
-        'observer',
-        'lifecycle-hook',
-        'actions',
-        'method',
-      ],
-    }],
-    'ember/order-in-controllers': ['error', {
-      order: [
-        'service',
-        'query-params',
-        'inherited-property',
-        'property',
-        ['single-line-function', 'multi-line-function'],
-        'observer',
-        'actions',
-        'method',
-      ],
-    }]
+    'ember/order-in-components': 'off',
+    'ember/order-in-controllers': 'off',
+    'ember/order-in-models': 'off',
+    'ember/order-in-routes': 'off',
   },
 };

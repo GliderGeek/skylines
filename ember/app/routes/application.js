@@ -1,4 +1,7 @@
-import Ember from 'ember';
+import { isBlank } from '@ember/utils';
+import { debug } from '@ember/debug';
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
 import RSVP from 'rsvp';
 import ApplicationRouteMixin from 'ember-simple-auth/mixins/application-route-mixin';
 
@@ -6,20 +9,21 @@ import _availableLocales from '../utils/locales';
 
 const FALLBACK_LOCALE = 'en';
 
-export default Ember.Route.extend(ApplicationRouteMixin, {
-  account: Ember.inject.service(),
-  ajax: Ember.inject.service(),
-  cookies: Ember.inject.service(),
-  intl: Ember.inject.service(),
-  session: Ember.inject.service(),
-  units: Ember.inject.service(),
+export default Route.extend(ApplicationRouteMixin, {
+  account: service(),
+  ajax: service(),
+  cookies: service(),
+  intl: service(),
+  raven: service(),
+  session: service(),
+  units: service(),
 
   async beforeModel() {
     let locale = await this._determineLocale();
     await this.get('intl').loadAndSetLocale(locale);
   },
 
-  setupController(controller) {
+  setupController() {
     this._super(...arguments);
 
     let settings = this.get('session.data.authenticated.settings');
@@ -31,8 +35,6 @@ export default Ember.Route.extend(ApplicationRouteMixin, {
         speedUnitIndex: settings.speedUnit,
       });
     }
-
-    controller.set('uploadController', this.controllerFor('flight-upload'));
   },
 
   activate() {
@@ -46,17 +48,17 @@ export default Ember.Route.extend(ApplicationRouteMixin, {
 
   async _determineLocale() {
     let availableLocales = _availableLocales.map(it => it.code);
-    Ember.debug(`Available locales: ${availableLocales}`);
+    debug(`Available locales: ${availableLocales}`);
 
     let cookieLocale = this.get('cookies').read('locale');
-    Ember.debug(`Locale from "locale" cookie: ${cookieLocale}`);
+    debug(`Locale from "locale" cookie: ${cookieLocale}`);
 
-    if (!Ember.isBlank(cookieLocale) && availableLocales.includes(cookieLocale)) {
-      Ember.debug(`Using locale "${cookieLocale}" from cookie`);
+    if (!isBlank(cookieLocale) && availableLocales.includes(cookieLocale)) {
+      debug(`Using locale "${cookieLocale}" from cookie`);
       return RSVP.resolve(cookieLocale);
     }
 
-    Ember.debug('Requesting locale resolution from server');
+    debug('Requesting locale resolution from server');
     try {
       let data = { available: availableLocales.join() };
       return (await this.get('ajax').request('/api/locale', { data })).locale || FALLBACK_LOCALE;

@@ -1,8 +1,9 @@
-import Ember from 'ember';
+import { inject as service } from '@ember/service';
+import Component from '@ember/component';
 import $ from 'jquery';
 
-export default Ember.Component.extend({
-  cookies: Ember.inject.service(),
+export default Component.extend({
+  mapSettings: service(),
 
   classNames: ['GraphicLayerSwitcher', 'ol-unselectable'],
 
@@ -12,6 +13,7 @@ export default Ember.Component.extend({
   overlayLayers: null,
 
   didInsertElement() {
+    this._super(...arguments);
     let mouseHandler = event => {
       if (this.$().find(event.target).length === 0) {
         this.set('open', false);
@@ -23,10 +25,10 @@ export default Ember.Component.extend({
   },
 
   willDestroyElement() {
+    this._super(...arguments);
     let mouseHandler = this.get('mouseHandler');
     $(document).off('mouseup touchend', mouseHandler);
   },
-
 
   actions: {
     open() {
@@ -35,48 +37,32 @@ export default Ember.Component.extend({
     },
 
     select(layer) {
-      if (layer.isBaseLayer) {
-        this.get('map').getLayers().getArray()
-          .filter(it => it.get('base_layer'))
-          .forEach(it => it.setVisible(it.get('id') === layer.id));
+      let mapSettings = this.get('mapSettings');
 
+      if (layer.isBaseLayer) {
+        mapSettings.setBaseLayer(layer.name);
       } else {
-        this.get('map').getLayers().getArray()
-          .filter(it => (it.get('id') === layer.id))
-          .forEach(it => it.setVisible(!it.getVisible()));
+        mapSettings.toggleOverlayLayer(layer.name);
       }
 
-      this.setLayerCookies();
       this.updateLayers();
     },
   },
 
   updateLayers() {
+    let mapSettings = this.get('mapSettings');
+
     let layers = this.get('map').getLayers().getArray()
       .filter(layer => layer.get('display_in_layer_switcher'))
       .map(layer => {
         let id = layer.get('id');
         let name = layer.get('name');
-        let visible = layer.getVisible();
+        let visible = mapSettings.isLayerVisible(name);
         let isBaseLayer = layer.get('base_layer');
         return { id, name, visible, isBaseLayer };
       });
 
     this.set('baseLayers', layers.filter(layer => layer.isBaseLayer));
     this.set('overlayLayers', layers.filter(layer => !layer.isBaseLayer));
-  },
-
-  setLayerCookies() {
-    let cookies = this.get('cookies');
-    let layers = this.get('map').getLayers().getArray();
-
-    let baseLayer = layers.filter(it => (it.get('base_layer') && it.getVisible()))[0];
-    cookies.write('base_layer', baseLayer.get('name'), { path: '/', expires: new Date('2099-12-31') });
-
-    let overlayLayers = layers.filter(it => (!it.get('base_layer') && it.getVisible()))
-      .map(it => it.get('name'))
-      .join(';');
-
-    cookies.write('overlay_layers', overlayLayers, { path: '/', expires: new Date('2099-12-31') });
   },
 });

@@ -1,13 +1,14 @@
-import Ember from 'ember';
+import { computed } from '@ember/object';
+import Component from '@ember/component';
 import ol from 'openlayers';
 
-export default Ember.Component.extend({
+export default Component.extend({
   tagName: '',
 
   map: null,
   locations: null,
 
-  layer: Ember.computed(function() {
+  layer: computed(function() {
     return new ol.layer.Vector({
       source: new ol.source.Vector(),
       style: new ol.style.Style({
@@ -22,15 +23,17 @@ export default Ember.Component.extend({
     });
   }),
 
-  source: Ember.computed('layer', function() {
+  source: computed('layer', function() {
     return this.get('layer').getSource();
   }),
 
   didInsertElement() {
+    this._super(...arguments);
     this.get('map').addLayer(this.get('layer'));
   },
 
   willDestroyElement() {
+    this._super(...arguments);
     this.get('map').removeLayer(this.get('layer'));
   },
 });

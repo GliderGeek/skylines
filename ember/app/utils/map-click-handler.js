@@ -1,9 +1,9 @@
 /* globals $ */
 
-import Ember from 'ember';
+import EmberObject from '@ember/object';
 import ol from 'openlayers';
 
-const MapClickHandler = Ember.Object.extend({
+const MapClickHandler = EmberObject.extend({
   /**
    * The OpenLayers.Geometry object of the circle.
    * @type {Object}
@@ -59,7 +59,7 @@ const MapClickHandler = Ember.Object.extend({
     if (flights) {
       let flight_path_source = flights.get('source');
       let closest_feature = flight_path_source
-          .getClosestFeatureToCoordinate(coordinate);
+        .getClosestFeatureToCoordinate(coordinate);
 
       if (closest_feature !== null) {
         let geometry = closest_feature.getGeometry();

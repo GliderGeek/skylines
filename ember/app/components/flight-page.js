@@ -1,19 +1,21 @@
-import Ember from 'ember';
+import { computed } from '@ember/object';
+import { inject as service } from '@ember/service';
+import Component from '@ember/component';
 
 import FixCalc from '../utils/fix-calc';
 import FlighPhase from '../utils/flight-phase';
 
-export default Ember.Component.extend({
-  ajax: Ember.inject.service(),
-  pinnedFlights: Ember.inject.service(),
-  units: Ember.inject.service(),
+export default Component.extend({
+  ajax: service(),
+  pinnedFlights: service(),
+  units: service(),
 
   classNames: ['relative-fullscreen'],
 
   fixCalc: null,
   flightPhase: null,
 
-  timeInterval: Ember.computed('mapExtent', 'cesiumEnabled', function() {
+  timeInterval: computed('mapExtent', 'cesiumEnabled', function() {
     if (this.get('cesiumEnabled')) { return null; }
 
     let extent = this.get('mapExtent');
@@ -39,20 +41,28 @@ export default Ember.Component.extend({
   },
 
   didInsertElement() {
+    this._super(...arguments);
     let fixCalc = this.get('fixCalc');
 
     let sidebar = this.$('#sidebar').sidebar();
 
-    this.$('#barogram_panel').resize(() => {
-      let height = this.$('#barogram_panel').height() + 10;
+    let resize = () => {
+      let $barogramPanel = this.$('#barogram_panel');
+      let bottom = Number($barogramPanel.css('bottom').replace('px', ''));
+      let height = $barogramPanel.height() + bottom;
       sidebar.css('bottom', height);
       this.$('.ol-scale-line').css('bottom', height);
       this.$('.ol-attribution').css('bottom', height);
-    });
+    };
+
+    resize();
+    this.$('#barogram_panel').resize(resize);
 
     if (window.location.hash &&
       sidebar.find(`li > a[href="#${window.location.hash.substring(1)}"]`).length !== 0) {
       sidebar.open(window.location.hash.substring(1));
+    } else if (window.innerWidth >= 768) {
+      sidebar.open('tab-overview');
     }
 
     let [primaryId, ...otherIds] = this.get('ids');
@@ -62,7 +72,7 @@ export default Ember.Component.extend({
     otherIds.forEach(id => fixCalc.addFlightFromJSON(`/api/flights/${id}/json`));
 
     let extent = fixCalc.get('flights').getBounds();
-    map.getView().fit(extent, map.getSize(), { padding: this._calculatePadding() });
+    map.getView().fit(extent, { padding: this._calculatePadding() });
 
     this.get('pinnedFlights.pinned')
       .filter(id => id !== primaryId)

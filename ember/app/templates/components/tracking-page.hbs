@@ -1,8 +1,8 @@
 {{#if flights}}
-  <div id="sidebar" class="sidebar">
+  <div id="sidebar" class="sidebar collapsed">
     <!-- Nav tabs -->
     <ul class="sidebar-tabs" role="tablist">
-      <li class="active">
+      <li>
         <a href="#tab-overview" title="{{t "overview"}}" role="tab">
           {{fa-icon "info" size="lg"}}
         </a>
@@ -10,7 +10,7 @@
     </ul>
     <!-- Tab panes -->
     <div class="sidebar-content">
-      <div class="sidebar-pane active" id="tab-overview">
+      <div class="sidebar-pane" id="tab-overview">
         <h3>{{t "overview"}}</h3>
         <div class="sidebar-pane-content">
           {{tracking-pilots-list pilots=pilots}}
@@ -28,7 +28,7 @@
     onExtentChange=(action (mut mapExtent))
     onCesiumEnabledChange=(action (mut cesiumEnabled))
     calculatePadding=(action "calculatePadding")
-    class="sidebar-map"}}
+    class="sidebar-map ol-with-barogram"}}
 
     {{fullscreen-button fullscreenElement="#fullscreen-content"}}
     {{playback-button isRunning=fixCalc.isRunning onToggle=(action "togglePlayback")}}

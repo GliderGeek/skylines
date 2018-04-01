@@ -1,16 +1,19 @@
 /* globals Cesium */
 
-import Ember from 'ember';
-import olcs from 'ol3-cesium';
+import { once } from '@ember/runloop';
 
-export default Ember.Component.extend({
+import { observer } from '@ember/object';
+import Component from '@ember/component';
+import olcs from 'ol-cesium';
+
+export default Component.extend({
   tagName: '',
 
   enabled: false,
   map: null,
 
-  enabledObserver: Ember.observer('enabled', function() {
-    Ember.run.once(this, 'update');
+  enabledObserver: observer('enabled', function() {
+    once(this, 'update');
   }),
 
   init() {
@@ -23,8 +26,6 @@ export default Ember.Component.extend({
       url: '//assets.agi.com/stk-terrain/world',
     });
     scene.globe.depthTestAgainstTerrain = true;
-
-    ol3d.enableAutoRenderLoop();
 
     this.set('ol3d', ol3d);
     this.set('scene', scene);

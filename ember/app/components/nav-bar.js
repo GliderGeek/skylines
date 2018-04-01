@@ -1,5 +1,7 @@
-import Ember from 'ember';
+import Component from '@ember/component';
 
-export default Ember.Component.extend({
-  classNames: ['navbar', 'navbar-inverse', 'navbar-fixed-top'],
+export default Component.extend({
+  tagName: '',
+
+  collapsed: true,
 });

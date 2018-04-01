@@ -1,14 +1,16 @@
-import Ember from 'ember';
+import { once } from '@ember/runloop';
+import { observer, getWithDefault } from '@ember/object';
+import Component from '@ember/component';
 import ol from 'openlayers';
 
-export default Ember.Component.extend({
+export default Component.extend({
   tagName: '',
 
   map: null,
   fixes: null,
 
-  fixesObserver: Ember.observer('fixes.@each.pointXY', function() {
-    Ember.run.once(this.get('map'), 'render');
+  fixesObserver: observer('fixes.@each.pointXY', function() {
+    once(this.get('map'), 'render');
   }),
 
   init() {
@@ -39,10 +41,12 @@ export default Ember.Component.extend({
   },
 
   didInsertElement() {
+    this._super(...arguments);
     this.get('map').on('postcompose', this.onPostCompose, this);
   },
 
   willDestroyElement() {
+    this._super(...arguments);
     this.get('map').un('postcompose', this.onPostCompose, this);
   },
 
@@ -77,7 +81,7 @@ export default Ember.Component.extend({
       let point = fix.get('pointXY');
 
       if (point) {
-        let type = Ember.getWithDefault(fix, 'flight.model.type', 'glider');
+        let type = getWithDefault(fix, 'flight.model.type', 'glider');
         let icon = icons[type] || icons['glider'];
         let style = styles[type] || styles['glider'];
 

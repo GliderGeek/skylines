@@ -1,4 +1,5 @@
-import Ember from 'ember';
+import { inject as service } from '@ember/service';
+import Component from '@ember/component';
 import { validator, buildValidations } from 'ember-cp-validations';
 import { task } from 'ember-concurrency';
 
@@ -19,8 +20,8 @@ const Validations = buildValidations({
   },
 });
 
-export default Ember.Component.extend(Validations, {
-  ajax: Ember.inject.service(),
+export default Component.extend(Validations, {
+  ajax: service(),
 
   classNames: ['panel-body'],
 
@@ -29,6 +30,7 @@ export default Ember.Component.extend(Validations, {
   modelId: null,
   registration: null,
   competitionId: null,
+  onDidSave() {},
 
   error: null,
 
@@ -47,7 +49,7 @@ export default Ember.Component.extend(Validations, {
 
     try {
       yield this.get('ajax').request(`/api/flights/${id}/`, { method: 'POST', json });
-      this.getWithDefault('onDidSave', Ember.K)();
+      this.get('onDidSave')();
     } catch (error) {
       this.set('error', error);
     }

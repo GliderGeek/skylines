@@ -1,14 +1,15 @@
-import Ember from 'ember';
+import Component from '@ember/component';
 
 import isoDate from '../utils/iso-date';
 
-export default Ember.Component.extend({
+export default Component.extend({
   tagName: 'span',
 
   date: null,
-  onSelect: null,
+  onSelect() {},
 
   didInsertElement() {
+    this._super(...arguments);
     let picker = this.$('span').datepicker({
       weekStart: 1,
     });
@@ -17,11 +18,12 @@ export default Ember.Component.extend({
 
     picker.on('changeDate', e => {
       picker.data('datepicker').hide();
-      this.getWithDefault('onSelect', Ember.K)(isoDate(e.date));
+      this.get('onSelect')(isoDate(e.date));
     });
   },
 
   willDestroyElement() {
+    this._super(...arguments);
     let picker = this.get('picker');
     if (picker) {
       picker.off('changeDate');

@@ -1,13 +1,14 @@
-import Ember from 'ember';
+import { computed } from '@ember/object';
+import Component from '@ember/component';
 import ol from 'openlayers';
 
-export default Ember.Component.extend({
+export default Component.extend({
   tagName: '',
 
   source: null,
   location: null,
 
-  feature: Ember.computed(function() {
+  feature: computed(function() {
     let location = this.get('location');
     let transformed = ol.proj.transform(location, 'EPSG:4326', 'EPSG:3857');
 
@@ -17,10 +18,12 @@ export default Ember.Component.extend({
   }),
 
   didInsertElement() {
+    this._super(...arguments);
     this.get('source').addFeature(this.get('feature'));
   },
 
   willDestroyElement() {
+    this._super(...arguments);
     this.get('source').removeFeature(this.get('feature'));
   },
 });

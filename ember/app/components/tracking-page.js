@@ -1,17 +1,20 @@
-import Ember from 'ember';
+import { cancel, later } from '@ember/runloop';
+import { computed } from '@ember/object';
+import { inject as service } from '@ember/service';
+import Component from '@ember/component';
 import ol from 'openlayers';
 
 import FixCalc from '../utils/fix-calc';
 
-export default Ember.Component.extend({
-  ajax: Ember.inject.service(),
-  units: Ember.inject.service(),
+export default Component.extend({
+  ajax: service(),
+  units: service(),
 
   classNames: ['relative-fullscreen'],
 
   fixCalc: null,
 
-  timeInterval: Ember.computed('mapExtent', 'cesiumEnabled', 'fixCalc.flights.[]', function() {
+  timeInterval: computed('mapExtent', 'cesiumEnabled', 'fixCalc.flights.[]', function() {
     if (this.get('cesiumEnabled')) { return null; }
 
     let extent = this.get('mapExtent');
@@ -33,6 +36,7 @@ export default Ember.Component.extend({
   },
 
   didInsertElement() {
+    this._super(...arguments);
     let flights = this.get('flights');
     if (flights.length === 0) { return; }
 
@@ -40,16 +44,23 @@ export default Ember.Component.extend({
 
     let sidebar = this.$('#sidebar').sidebar();
 
-    this.$('#barogram_panel').resize(() => {
-      let height = this.$('#barogram_panel').height() + 10;
+    let resize = () => {
+      let $barogramPanel = this.$('#barogram_panel');
+      let bottom = Number($barogramPanel.css('bottom').replace('px', ''));
+      let height = $barogramPanel.height() + bottom;
       sidebar.css('bottom', height);
       this.$('.ol-scale-line').css('bottom', height);
       this.$('.ol-attribution').css('bottom', height);
-    });
+    };
+
+    resize();
+    this.$('#barogram_panel').resize(resize);
 
     if (window.location.hash &&
       sidebar.find(`li > a[href="#${window.location.hash.substring(1)}"]`).length !== 0) {
       sidebar.open(window.location.hash.substring(1));
+    } else if (window.innerWidth >= 768 && flights.length > 1) {
+      sidebar.open('tab-overview');
     }
 
     let map = window.flightMap.get('map');
@@ -60,16 +71,17 @@ export default Ember.Component.extend({
     flights.forEach(flight => fixCalc.addFlight(flight));
 
     let extent = fixCalc.get('flights').getBounds();
-    map.getView().fit(extent, map.getSize(), { padding: this._calculatePadding() });
+    map.getView().fit(extent, { padding: this._calculatePadding() });
 
     // update flight track every 15 seconds
     this._scheduleUpdate();
   },
 
   willDestroyElement() {
+    this._super(...arguments);
     let updateTimer = this.get('updateTimer');
     if (updateTimer) {
-      Ember.run.cancel(updateTimer);
+      cancel(updateTimer);
     }
   },
 
@@ -89,7 +101,7 @@ export default Ember.Component.extend({
   },
 
   _scheduleUpdate() {
-    this.set('updateTimer', Ember.run.later(() => this._update(), 15 * 1000));
+    this.set('updateTimer', later(() => this._update(), 15 * 1000));
   },
 
   _update() {

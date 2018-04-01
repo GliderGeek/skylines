@@ -1,24 +1,28 @@
-import Ember from 'ember';
+import { once } from '@ember/runloop';
+import { observer } from '@ember/object';
+import { readOnly } from '@ember/object/computed';
+import Component from '@ember/component';
 import ol from 'openlayers';
 
 import computedPoint from '../computed/computed-point';
 
-export default Ember.Component.extend({
+export default Component.extend({
   tagName: '',
 
   map: null,
   paddingFn: null,
   coordinates: null,
+  calculatePadding() {},
 
-  startCoordinate: Ember.computed.readOnly('coordinates.firstObject'),
-  endCoordinate: Ember.computed.readOnly('coordinates.lastObject'),
+  startCoordinate: readOnly('coordinates.firstObject'),
+  endCoordinate: readOnly('coordinates.lastObject'),
 
   startPoint: computedPoint('coordinates.firstObject'),
   endPoint: computedPoint('coordinates.lastObject'),
 
-  coordinatesObserver: Ember.observer('coordinates.[]', function() {
+  coordinatesObserver: observer('coordinates.[]', function() {
     this.adjustMapView();
-    Ember.run.once(this.get('map'), 'render');
+    once(this.get('map'), 'render');
   }),
 
   init() {
@@ -47,10 +51,12 @@ export default Ember.Component.extend({
   },
 
   didInsertElement() {
+    this._super(...arguments);
     this.get('map').on('postcompose', this.onPostCompose, this);
   },
 
   willDestroyElement() {
+    this._super(...arguments);
     this.get('map').un('postcompose', this.onPostCompose, this);
   },
 
@@ -75,8 +81,8 @@ export default Ember.Component.extend({
     if (coordinates) {
       let map = this.get('map');
       let extent = ol.extent.boundingExtent(coordinates);
-      let padding = this.getWithDefault('calculatePadding', Ember.K)();
-      map.getView().fit(extent, map.getSize(), { padding });
+      let padding = this.get('calculatePadding')();
+      map.getView().fit(extent, { padding });
     }
   },
 });

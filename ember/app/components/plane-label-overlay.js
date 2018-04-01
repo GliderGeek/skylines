@@ -1,8 +1,8 @@
-import Ember from 'ember';
+import Component from '@ember/component';
 import $ from 'jquery';
 import ol from 'openlayers';
 
-export default Ember.Component.extend({
+export default Component.extend({
   tagName: '',
 
   map: null,
@@ -27,10 +27,12 @@ export default Ember.Component.extend({
   },
 
   didReceiveAttrs() {
+    this._super(...arguments);
     this.get('overlay').setPosition(this.get('position'));
   },
 
   didInsertElement() {
+    this._super(...arguments);
     let overlay = this.get('overlay');
     this.get('map').addOverlay(overlay);
 
@@ -39,6 +41,7 @@ export default Ember.Component.extend({
   },
 
   willDestroyElement() {
+    this._super(...arguments);
     let overlay = this.get('overlay');
     this.get('map').removeOverlay(overlay);
   },

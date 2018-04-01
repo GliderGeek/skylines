@@ -1,7 +1,8 @@
-import Ember from 'ember';
-import { or, and } from 'ember-awesome-macros';
+import Component from '@ember/component';
+import { readOnly } from '@ember/object/computed';
+import { or, and, not } from 'ember-awesome-macros';
 
-export default Ember.Component.extend({
+export default Component.extend({
   classNames: ['form-group has-feedback'],
   classNameBindings: ['_showErrorClass:has-error', 'isValid:has-success'],
 
@@ -9,12 +10,12 @@ export default Ember.Component.extend({
   label: null,
   hasContent: true,
   forceErrorClass: false,
+  didValidate: false,
 
-  notValidating: Ember.computed.not('validation.isValidating'),
-  didValidate: Ember.computed.readOnly('targetObject.didValidate'),
-  isValid: Ember.computed.and('hasContent', 'validation.isValid', 'notValidating'),
-  isInvalid: Ember.computed.readOnly('validation.isInvalid'),
-  showErrorClass: Ember.computed.and('notValidating', 'showMessage', 'hasContent', 'validation'),
+  notValidating: not('validation.isValidating'),
+  isValid: and('hasContent', 'validation.isValid', 'notValidating'),
+  isInvalid: readOnly('validation.isInvalid'),
+  showErrorClass: and('notValidating', 'showMessage', 'hasContent', 'validation'),
   showMessage: and(or('validation.isDirty', 'didValidate'), 'isInvalid'),
-  _showErrorClass: Ember.computed.or('showErrorClass', 'forceErrorClass'),
+  _showErrorClass: or('showErrorClass', 'forceErrorClass'),
 });

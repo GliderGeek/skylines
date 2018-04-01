@@ -1,4 +1,6 @@
-import Ember from 'ember';
+import { oneWay, equal } from '@ember/object/computed';
+import { inject as service } from '@ember/service';
+import Component from '@ember/component';
 import { validator, buildValidations } from 'ember-cp-validations';
 import { task } from 'ember-concurrency';
 
@@ -24,19 +26,20 @@ const Validations = buildValidations({
   },
 });
 
-export default Ember.Component.extend(Validations, {
-  ajax: Ember.inject.service(),
-  account: Ember.inject.service(),
+export default Component.extend(Validations, {
+  ajax: service(),
+  account: service(),
 
   classNames: ['panel-body'],
 
   clubMembers: null,
   pilotName: null,
   error: null,
+  onUpload() {},
 
-  pilotId: Ember.computed.oneWay('account.user.id'),
+  pilotId: oneWay('account.user.id'),
 
-  showPilotNameInput: Ember.computed.equal('pilotId', null),
+  showPilotNameInput: equal('pilotId', null),
 
   actions: {
     setFilesFromEvent(event) {
@@ -57,7 +60,7 @@ export default Ember.Component.extend(Validations, {
 
     try {
       let json = yield this.get('ajax').request('/api/flights/upload/', { method: 'POST', data, contentType: false, processData: false });
-      this.getWithDefault('onUpload', Ember.K)(json);
+      this.get('onUpload')(json);
 
     } catch (error) {
       this.set('error', error);
